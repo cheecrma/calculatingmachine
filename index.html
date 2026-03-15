@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한샘정밀 - 수치계산</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="Logo.png" alt="한샘정밀 로고" class="logo">
+            <div class="header-text">
+                <h1>한샘정밀</h1>
+                <p class="header-subtitle">초경합금 정밀부품 와이어컷 전문</p>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 도형 선택 -->
+        <section class="shape-selector">
+            <h2>도형 선택</h2>
+            <div class="shape-buttons">
+                <button class="shape-btn active" data-shape="triangle">
+                    <svg viewBox="0 0 100 100" class="shape-icon">
+                        <polygon points="50,10 90,90 10,90" fill="none" stroke="currentColor" stroke-width="4"/>
+                    </svg>
+                    <span>삼각형</span>
+                </button>
+                <button class="shape-btn" data-shape="rectangle">
+                    <svg viewBox="0 0 100 100" class="shape-icon">
+                        <rect x="10" y="20" width="80" height="60" fill="none" stroke="currentColor" stroke-width="4"/>
+                    </svg>
+                    <span>사각형</span>
+                </button>
+                <button class="shape-btn" data-shape="hexagon">
+                    <svg viewBox="0 0 100 100" class="shape-icon">
+                        <polygon points="30,20 70,20 90,50 70,80 30,80 10,50" fill="none" stroke="currentColor" stroke-width="4"/>
+                    </svg>
+                    <span>육각형</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 삼각형 계산 -->
+        <section id="triangle-section" class="calc-section active">
+            <h2>삼각형 계산</h2>
+
+            <div class="calc-type-selector">
+                <button class="calc-type-btn active" data-calc="sides">직각삼각형</button>
+                <button class="calc-type-btn" data-calc="angles">일반삼각형</button>
+            </div>
+
+            <!-- 직각삼각형 계산 -->
+            <div id="triangle-sides" class="calc-panel active">
+                <p class="description">직각삼각형의 두 변을 입력하면 빗변과 각도를 계산합니다.</p>
+                <div class="input-guide">
+                    <svg viewBox="0 0 200 145" class="guide-svg">
+                        <polygon points="45,120 175,120 45,35" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
+                        <rect x="45" y="105" width="15" height="15" fill="none" stroke="#666" stroke-width="1"/>
+                        <text x="110" y="138" text-anchor="middle" fill="#1a5f7a" font-size="12" font-weight="bold">밑변 A</text>
+                        <text x="22" y="80" text-anchor="middle" fill="#e65100" font-size="12" font-weight="bold">높이</text>
+                        <text x="22" y="95" text-anchor="middle" fill="#e65100" font-size="12" font-weight="bold">B</text>
+                        <text x="125" y="68" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">빗변 C</text>
+                    </svg>
+                </div>
+                <div class="input-group">
+                    <label for="tri-a">밑변 A</label>
+                    <input type="number" id="tri-a" placeholder="길이 입력" step="any">
+                    <span class="unit">mm</span>
+                </div>
+                <div class="input-group">
+                    <label for="tri-b">높이 B</label>
+                    <input type="number" id="tri-b" placeholder="길이 입력" step="any">
+                    <span class="unit">mm</span>
+                </div>
+                <button class="calculate-btn" onclick="calculateTriangleSides()">계산하기</button>
+
+                <div class="result-area" id="triangle-sides-result">
+                    <div class="shape-display">
+                        <svg id="triangle-sides-svg" viewBox="0 0 300 260"></svg>
+                    </div>
+                    <div class="result-values" id="triangle-sides-values"></div>
+                </div>
+            </div>
+
+            <!-- 일반삼각형 계산 -->
+            <div id="triangle-angles" class="calc-panel">
+                <p class="description">세 변 또는 두 변과 한 각도를 입력하면 나머지를 계산합니다.</p>
+
+                <div class="sub-calc-selector">
+                    <button class="sub-calc-btn active" data-subcalc="three-sides">세 변 → 각도</button>
+                    <button class="sub-calc-btn" data-subcalc="two-sides-angle">두 변 + 각도 → 변</button>
+                </div>
+
+                <!-- 세 변으로 각도 계산 -->
+                <div id="three-sides-panel" class="sub-panel active">
+                    <div class="input-guide">
+                        <svg viewBox="0 0 200 150" class="guide-svg">
+                            <polygon points="100,20 180,130 20,130" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
+                            <text x="100" y="12" text-anchor="middle" fill="#9c27b0" font-size="12" font-weight="bold">꼭지점 C</text>
+                            <text x="45" y="80" text-anchor="middle" fill="#e65100" font-size="12" font-weight="bold">변 b</text>
+                            <text x="155" y="80" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 a</text>
+                            <text x="100" y="145" text-anchor="middle" fill="#1a5f7a" font-size="12" font-weight="bold">변 c</text>
+                            <text x="12" y="130" text-anchor="middle" fill="#1a5f7a" font-size="11" font-weight="bold">A</text>
+                            <text x="188" y="130" text-anchor="middle" fill="#1a5f7a" font-size="11" font-weight="bold">B</text>
+                        </svg>
+                        <p class="guide-text">소문자 변은 맞은편 대문자 꼭지점의 이름</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-side-a">변 a (꼭지점 A 맞은편)</label>
+                        <input type="number" id="tri-side-a" placeholder="길이 입력" step="any">
+                        <span class="unit">mm</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-side-b">변 b (꼭지점 B 맞은편)</label>
+                        <input type="number" id="tri-side-b" placeholder="길이 입력" step="any">
+                        <span class="unit">mm</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-side-c">변 c (꼭지점 C 맞은편)</label>
+                        <input type="number" id="tri-side-c" placeholder="길이 입력" step="any">
+                        <span class="unit">mm</span>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateTriangleAngles()">계산하기</button>
+                </div>
+
+                <!-- 두 변과 각도로 변 계산 -->
+                <div id="two-sides-angle-panel" class="sub-panel">
+                    <div class="input-guide">
+                        <svg viewBox="0 0 200 150" class="guide-svg">
+                            <polygon points="100,25 175,125 25,125" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
+                            <path d="M 40,125 A 20,20 0 0,1 52,112" fill="none" stroke="#f57c00" stroke-width="2"/>
+                            <text x="55" y="115" fill="#f57c00" font-size="11" font-weight="bold">∠A</text>
+                            <text x="55" y="80" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 b</text>
+                            <text x="100" y="140" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 c</text>
+                            <text x="150" y="80" text-anchor="middle" fill="#999" font-size="12">변 a = ?</text>
+                        </svg>
+                        <p class="guide-text">두 변과 그 사이 각도를 입력하세요</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-known-b">변 b (각도 옆 변)</label>
+                        <input type="number" id="tri-known-b" placeholder="길이 입력" step="any">
+                        <span class="unit">mm</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-known-c">변 c (각도 옆 변)</label>
+                        <input type="number" id="tri-known-c" placeholder="길이 입력" step="any">
+                        <span class="unit">mm</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-known-angle">∠A (두 변 사이 각도)</label>
+                        <input type="number" id="tri-known-angle" placeholder="각도 입력" step="any">
+                        <span class="unit">°</span>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateSideFromAngle()">계산하기</button>
+                </div>
+
+                <div class="result-area" id="triangle-angles-result">
+                    <div class="shape-display">
+                        <svg id="triangle-angles-svg" viewBox="0 0 320 320"></svg>
+                    </div>
+                    <div class="result-values" id="triangle-angles-values"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 사각형 계산 -->
+        <section id="rectangle-section" class="calc-section">
+            <h2>사각형 계산</h2>
+            <div class="input-group">
+                <label for="rect-width">가로 길이</label>
+                <input type="number" id="rect-width" placeholder="가로 입력" step="any">
+                <span class="unit">mm</span>
+            </div>
+            <div class="input-group">
+                <label for="rect-height">세로 길이</label>
+                <input type="number" id="rect-height" placeholder="세로 입력" step="any">
+                <span class="unit">mm</span>
+            </div>
+            <button class="calculate-btn" onclick="calculateRectangle()">계산하기</button>
+
+            <div class="result-area" id="rectangle-result">
+                <div class="shape-display">
+                    <svg id="rectangle-svg" viewBox="0 0 300 260"></svg>
+                </div>
+                <div class="result-values" id="rectangle-values"></div>
+            </div>
+        </section>
+
+        <!-- 정육각형 계산 -->
+        <section id="hexagon-section" class="calc-section">
+            <h2>정육각형 계산</h2>
+            <p class="description">한 변 또는 높이를 입력하면 대각선 길이를 계산합니다.</p>
+
+            <div class="sub-calc-selector">
+                <button class="sub-calc-btn active" data-hexcalc="by-side">한 변으로 계산</button>
+                <button class="sub-calc-btn" data-hexcalc="by-height">높이로 계산</button>
+            </div>
+
+            <!-- 한 변으로 계산 -->
+            <div id="hex-by-side-panel" class="sub-panel active">
+                <div class="input-guide">
+                    <svg viewBox="0 0 220 160" class="guide-svg">
+                        <!-- 90도 회전된 정육각형 (가로로 긴 대각선) -->
+                        <polygon points="30,80 65,35 135,35 170,80 135,125 65,125" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
+                        <!-- 한 변 표시 -->
+                        <line x1="65" y1="35" x2="135" y2="35" stroke="#e65100" stroke-width="3"/>
+                        <text x="100" y="25" text-anchor="middle" fill="#e65100" font-size="11" font-weight="bold">한 변 (a)</text>
+                        <!-- 긴 대각선 (가로) -->
+                        <line x1="30" y1="80" x2="170" y2="80" stroke="#9c27b0" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="100" y="93" text-anchor="middle" fill="#9c27b0" font-size="11" font-weight="bold">긴 대각선 = 2a</text>
+                        <!-- 높이 표시 -->
+                        <line x1="190" y1="35" x2="190" y2="125" stroke="#27ae60" stroke-width="2"/>
+                        <line x1="185" y1="35" x2="195" y2="35" stroke="#27ae60" stroke-width="2"/>
+                        <line x1="185" y1="125" x2="195" y2="125" stroke="#27ae60" stroke-width="2"/>
+                        <text x="205" y="85" fill="#27ae60" font-size="10" font-weight="bold">높이</text>
+                    </svg>
+                </div>
+                <div class="input-group">
+                    <label for="hex-side">한 변의 길이 (a)</label>
+                    <input type="number" id="hex-side" placeholder="한 변 길이 입력" step="any">
+                    <span class="unit">mm</span>
+                </div>
+                <button class="calculate-btn" onclick="calculateHexagonBySide()">계산하기</button>
+            </div>
+
+            <!-- 높이로 계산 -->
+            <div id="hex-by-height-panel" class="sub-panel">
+                <div class="input-guide">
+                    <svg viewBox="0 0 220 160" class="guide-svg">
+                        <polygon points="30,80 65,35 135,35 170,80 135,125 65,125" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
+                        <!-- 높이 표시 (강조) -->
+                        <line x1="100" y1="35" x2="100" y2="125" stroke="#27ae60" stroke-width="3"/>
+                        <text x="115" y="85" fill="#27ae60" font-size="11" font-weight="bold">높이 (h)</text>
+                        <!-- 긴 대각선 -->
+                        <line x1="30" y1="80" x2="170" y2="80" stroke="#9c27b0" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="100" y="70" text-anchor="middle" fill="#9c27b0" font-size="10" font-weight="bold">긴 대각선 = ?</text>
+                    </svg>
+                    <p class="guide-text">높이 = a × √3, 긴 대각선 = 높이 × 2 / √3</p>
+                </div>
+                <div class="input-group">
+                    <label for="hex-height">높이 (h)</label>
+                    <input type="number" id="hex-height" placeholder="높이 입력" step="any">
+                    <span class="unit">mm</span>
+                </div>
+                <button class="calculate-btn" onclick="calculateHexagonByHeight()">계산하기</button>
+            </div>
+
+            <div class="result-area" id="hexagon-result">
+                <div class="shape-display">
+                    <svg id="hexagon-svg" viewBox="0 0 300 240"></svg>
+                </div>
+                <div class="result-values" id="hexagon-values"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p class="copyright">&copy; 2026 한샘정밀. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

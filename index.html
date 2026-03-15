@@ -4,12 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>한샘정밀 - 수치계산</title>
+
+    <!-- 브라우저 탭 아이콘 (Favicon) -->
+    <link rel="icon" type="image/png" href="Icon.png">
+    <link rel="shortcut icon" type="image/png" href="Icon.png">
+
+    <!-- iOS 홈 화면 추가 시 아이콘 -->
+    <link rel="apple-touch-icon" href="Icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="한샘정밀">
+
+    <!-- Android 홈 화면 추가 시 설정 -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a5f7a">
+    <link rel="manifest" href="manifest.json">
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
         <div class="header-content">
-            <img src="Logo.png" alt="한샘정밀 로고" class="logo">
+            <a href="index.html" class="logo-link">
+                <img src="Logo.png" alt="한샘정밀 로고" class="logo">
+            </a>
             <div class="header-text">
                 <h1>한샘정밀</h1>
                 <p class="header-subtitle">초경합금 정밀부품 와이어컷 전문</p>
@@ -87,11 +105,13 @@
 
             <!-- 일반삼각형 계산 -->
             <div id="triangle-angles" class="calc-panel">
-                <p class="description">세 변 또는 두 변과 한 각도를 입력하면 나머지를 계산합니다.</p>
+                <p class="description">알고 있는 값을 선택하여 나머지를 계산합니다.</p>
 
                 <div class="sub-calc-selector">
                     <button class="sub-calc-btn active" data-subcalc="three-sides">세 변 → 각도</button>
-                    <button class="sub-calc-btn" data-subcalc="two-sides-angle">두 변 + 각도 → 변</button>
+                    <button class="sub-calc-btn" data-subcalc="two-sides-angle">두 변 + 끼인각</button>
+                    <button class="sub-calc-btn" data-subcalc="one-side-two-angles">한 변 + 두 각도</button>
+                    <button class="sub-calc-btn" data-subcalc="two-sides-opposite">두 변 + 맞은편 각</button>
                 </div>
 
                 <!-- 세 변으로 각도 계산 -->
@@ -99,7 +119,7 @@
                     <div class="input-guide">
                         <svg viewBox="0 0 200 150" class="guide-svg">
                             <polygon points="100,20 180,130 20,130" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
-                            <text x="100" y="12" text-anchor="middle" fill="#9c27b0" font-size="12" font-weight="bold">꼭지점 C</text>
+                            <text x="100" y="12" text-anchor="middle" fill="#1a5f7a" font-size="11" font-weight="bold">C</text>
                             <text x="45" y="80" text-anchor="middle" fill="#e65100" font-size="12" font-weight="bold">변 b</text>
                             <text x="155" y="80" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 a</text>
                             <text x="100" y="145" text-anchor="middle" fill="#1a5f7a" font-size="12" font-weight="bold">변 c</text>
@@ -131,11 +151,12 @@
                     <div class="input-guide">
                         <svg viewBox="0 0 200 150" class="guide-svg">
                             <polygon points="100,25 175,125 25,125" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
-                            <path d="M 40,125 A 20,20 0 0,1 52,112" fill="none" stroke="#f57c00" stroke-width="2"/>
-                            <text x="55" y="115" fill="#f57c00" font-size="11" font-weight="bold">∠A</text>
-                            <text x="55" y="80" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 b</text>
-                            <text x="100" y="140" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 c</text>
-                            <text x="150" y="80" text-anchor="middle" fill="#999" font-size="12">변 a = ?</text>
+                            <!-- ∠A: 꼭지점 A(25,125)에서 호 -->
+                            <path d="M 45,125 A 20,20 0 0,0 35,110" fill="none" stroke="#f57c00" stroke-width="2"/>
+                            <text x="50" y="112" fill="#f57c00" font-size="11" font-weight="bold">∠A</text>
+                            <text x="55" y="70" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 b</text>
+                            <text x="100" y="145" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 c</text>
+                            <text x="150" y="70" text-anchor="middle" fill="#999" font-size="12">변 a = ?</text>
                         </svg>
                         <p class="guide-text">두 변과 그 사이 각도를 입력하세요</p>
                     </div>
@@ -155,6 +176,79 @@
                         <span class="unit">°</span>
                     </div>
                     <button class="calculate-btn" onclick="calculateSideFromAngle()">계산하기</button>
+                </div>
+
+                <!-- 한 변과 두 각도로 나머지 계산 -->
+                <div id="one-side-two-angles-panel" class="sub-panel">
+                    <div class="input-guide">
+                        <svg viewBox="0 0 200 150" class="guide-svg">
+                            <polygon points="100,25 175,125 25,125" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
+                            <!-- ∠A: 꼭지점 A(25,125)에서 호 -->
+                            <path d="M 45,125 A 20,20 0 0,0 35,110" fill="none" stroke="#f57c00" stroke-width="2"/>
+                            <!-- ∠B: 꼭지점 B(175,125)에서 호 -->
+                            <path d="M 155,125 A 20,20 0 0,1 165,110" fill="none" stroke="#f57c00" stroke-width="2"/>
+                            <text x="50" y="112" fill="#f57c00" font-size="11" font-weight="bold">∠A</text>
+                            <text x="150" y="112" fill="#f57c00" font-size="11" font-weight="bold">∠B</text>
+                            <text x="100" y="145" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 c (알고있는 변)</text>
+                            <text x="50" y="70" text-anchor="middle" fill="#999" font-size="11">변 b = ?</text>
+                            <text x="150" y="70" text-anchor="middle" fill="#999" font-size="11">변 a = ?</text>
+                        </svg>
+                        <p class="guide-text">한 변과 양 끝 두 각도를 입력하세요 (∠C는 자동 계산)</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-asa-c">변 c (알고 있는 변)</label>
+                        <input type="number" id="tri-asa-c" placeholder="길이 입력" step="any">
+                        <span class="unit">mm</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-asa-angleA">∠A (변 c의 한쪽 끝 각도)</label>
+                        <input type="number" id="tri-asa-angleA" placeholder="각도 입력" step="any">
+                        <span class="unit">°</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-asa-angleB">∠B (변 c의 다른 끝 각도)</label>
+                        <input type="number" id="tri-asa-angleB" placeholder="각도 입력" step="any">
+                        <span class="unit">°</span>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateFromOneAndTwoAngles()">계산하기</button>
+                </div>
+
+                <!-- 두 변과 맞은편 각도로 계산 (SSA) -->
+                <div id="two-sides-opposite-panel" class="sub-panel">
+                    <div class="input-guide">
+                        <svg viewBox="0 0 200 150" class="guide-svg">
+                            <polygon points="100,25 175,125 25,125" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
+                            <!-- ∠A: 꼭지점 A(25,125)에서 호 -->
+                            <path d="M 45,125 A 20,20 0 0,0 35,110" fill="none" stroke="#f57c00" stroke-width="2"/>
+                            <text x="50" y="112" fill="#f57c00" font-size="11" font-weight="bold">∠A</text>
+                            <!-- 변 a는 ∠A의 맞은편 = 꼭지점 B와 C 사이 -->
+                            <text x="150" y="70" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 a</text>
+                            <text x="50" y="70" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">변 b</text>
+                            <text x="100" y="145" text-anchor="middle" fill="#999" font-size="11">변 c = ?</text>
+                        </svg>
+                        <p class="guide-text">변 a와 맞은편 ∠A, 그리고 다른 변 b를 입력</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-ssa-a">변 a (각도 A의 맞은편)</label>
+                        <input type="number" id="tri-ssa-a" placeholder="길이 입력" step="any">
+                        <span class="unit">mm</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-ssa-b">변 b (다른 변)</label>
+                        <input type="number" id="tri-ssa-b" placeholder="길이 입력" step="any">
+                        <span class="unit">mm</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="tri-ssa-angleA">∠A (변 a의 맞은편 각도)</label>
+                        <input type="number" id="tri-ssa-angleA" placeholder="각도 입력" step="any">
+                        <span class="unit">°</span>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateFromTwoSidesOpposite()">계산하기</button>
+                    <div id="ssa-solution-selector" class="solution-selector" style="display: none;">
+                        <p class="solution-note">두 가지 해가 가능합니다. 선택하세요:</p>
+                        <button class="solution-btn active" onclick="showSSASolution(1)">해 1 (예각)</button>
+                        <button class="solution-btn" onclick="showSSASolution(2)">해 2 (둔각)</button>
+                    </div>
                 </div>
 
                 <div class="result-area" id="triangle-angles-result">
@@ -202,7 +296,7 @@
             <!-- 한 변으로 계산 -->
             <div id="hex-by-side-panel" class="sub-panel active">
                 <div class="input-guide">
-                    <svg viewBox="0 0 220 160" class="guide-svg">
+                    <svg viewBox="0 0 235 160" class="guide-svg">
                         <!-- 90도 회전된 정육각형 (가로로 긴 대각선) -->
                         <polygon points="30,80 65,35 135,35 170,80 135,125 65,125" fill="rgba(26,95,122,0.1)" stroke="#1a5f7a" stroke-width="2"/>
                         <!-- 한 변 표시 -->

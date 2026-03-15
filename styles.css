@@ -49,10 +49,21 @@ header {
     margin: 0 auto;
 }
 
+.logo-link {
+    display: flex;
+    align-items: center;
+}
+
 .logo {
     height: 50px;
     width: auto;
     object-fit: contain;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.logo:hover {
+    opacity: 0.8;
 }
 
 .header-text h1 {
@@ -226,7 +237,8 @@ main {
 
 /* Sub Calc Selector */
 .sub-calc-selector {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
     margin-bottom: 1.2rem;
     background: var(--bg-color);
@@ -235,7 +247,6 @@ main {
 }
 
 .sub-calc-btn {
-    flex: 1;
     padding: 0.6rem 0.8rem;
     border: none;
     border-radius: 8px;
@@ -540,6 +551,44 @@ footer .copyright {
     font-size: 16px;
     font-weight: 700;
     fill: var(--primary-color);
+}
+
+/* Solution Selector (SSA ambiguous case) */
+.solution-selector {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fff3e0;
+    border: 2px solid var(--accent-color);
+    border-radius: 10px;
+}
+
+.solution-note {
+    font-size: 0.95rem;
+    color: var(--accent-color);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.solution-selector .solution-btn {
+    padding: 0.6rem 1.2rem;
+    margin-right: 0.5rem;
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+    background: var(--white);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.solution-selector .solution-btn:hover {
+    background: #fff8f0;
+}
+
+.solution-selector .solution-btn.active {
+    background: var(--accent-color);
+    color: var(--white);
 }
 
 .svg-text-result {

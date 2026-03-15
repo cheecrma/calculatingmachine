@@ -193,14 +193,14 @@ function drawTriangleSides(svgId, a, b, c, angleA, angleB) {
             C = ${c.toFixed(2)}
         </text>
 
-        <!-- Angle markers -->
-        <rect x="${x2 - 60}" y="${y2 - 30}" width="55" height="18" fill="rgba(255,255,255,0.95)" rx="3" stroke="#ddd" stroke-width="1"/>
-        <text x="${x2 - 33}" y="${y2 - 17}" fill="#666" font-size="11" font-weight="bold" text-anchor="middle">
+        <!-- Angle markers - 꼭지점 옆에 배치 -->
+        <rect x="${x2 + 5}" y="${y2 - 22}" width="55" height="18" fill="rgba(255,255,255,0.95)" rx="3" stroke="#ddd" stroke-width="1"/>
+        <text x="${x2 + 32}" y="${y2 - 9}" fill="#666" font-size="11" font-weight="bold" text-anchor="middle">
             α=${angleA.toFixed(1)}°
         </text>
 
-        <rect x="${x3 + 8}" y="${y3 + 8}" width="55" height="18" fill="rgba(255,255,255,0.95)" rx="3" stroke="#ddd" stroke-width="1"/>
-        <text x="${x3 + 35}" y="${y3 + 21}" fill="#666" font-size="11" font-weight="bold" text-anchor="middle">
+        <rect x="${x3 - 60}" y="${y3 - 5}" width="55" height="18" fill="rgba(255,255,255,0.95)" rx="3" stroke="#ddd" stroke-width="1"/>
+        <text x="${x3 - 33}" y="${y3 + 8}" fill="#666" font-size="11" font-weight="bold" text-anchor="middle">
             β=${angleB.toFixed(1)}°
         </text>
     `;
@@ -321,6 +321,191 @@ function calculateSideFromAngle() {
     resultArea.classList.add('show');
 }
 
+// Store SSA solutions for switching between them
+let ssaSolutions = null;
+
+// Calculate from two sides and opposite angle (SSA - Ambiguous case)
+function calculateFromTwoSidesOpposite() {
+    const a = parseFloat(document.getElementById('tri-ssa-a').value);
+    const b = parseFloat(document.getElementById('tri-ssa-b').value);
+    const angleA = parseFloat(document.getElementById('tri-ssa-angleA').value);
+
+    if (isNaN(a) || isNaN(b) || isNaN(angleA) || a <= 0 || b <= 0 || angleA <= 0 || angleA >= 180) {
+        alert('올바른 값을 입력해주세요.\n각도는 0°~180° 사이여야 합니다.');
+        return;
+    }
+
+    const angleARad = angleA * Math.PI / 180;
+
+    // Use Law of Sines: sin(B) = b * sin(A) / a
+    const sinB = b * Math.sin(angleARad) / a;
+
+    // Check if triangle is possible
+    if (sinB > 1) {
+        alert('이 조건으로는 삼각형을 만들 수 없습니다.\n(sin(B) > 1)');
+        document.getElementById('ssa-solution-selector').style.display = 'none';
+        return;
+    }
+
+    const angleB1 = Math.asin(sinB) * (180 / Math.PI);
+    const angleB2 = 180 - angleB1;
+
+    // Check for valid solutions
+    const solutions = [];
+
+    // Solution 1: B is acute (or right angle)
+    if (angleA + angleB1 < 180) {
+        const angleC1 = 180 - angleA - angleB1;
+        const c1 = a * Math.sin(angleC1 * Math.PI / 180) / Math.sin(angleARad);
+        solutions.push({ a, b, c: c1, angleA, angleB: angleB1, angleC: angleC1 });
+    }
+
+    // Solution 2: B is obtuse (only if B2 is significantly different from B1)
+    // Use tolerance for floating point comparison
+    const isDifferent = Math.abs(angleB2 - angleB1) > 0.01;
+    if (isDifferent && angleA + angleB2 < 180 && angleB2 > 0) {
+        const angleC2 = 180 - angleA - angleB2;
+        const c2 = a * Math.sin(angleC2 * Math.PI / 180) / Math.sin(angleARad);
+        solutions.push({ a, b, c: c2, angleA, angleB: angleB2, angleC: angleC2 });
+    }
+
+    if (solutions.length === 0) {
+        alert('이 조건으로는 삼각형을 만들 수 없습니다.');
+        document.getElementById('ssa-solution-selector').style.display = 'none';
+        return;
+    }
+
+    ssaSolutions = solutions;
+
+    // Show solution selector if two solutions exist
+    const selector = document.getElementById('ssa-solution-selector');
+    if (solutions.length === 2) {
+        selector.style.display = 'block';
+        selector.querySelectorAll('.solution-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === 0);
+        });
+    } else {
+        selector.style.display = 'none';
+    }
+
+    // Show first solution
+    showSSASolution(1);
+}
+
+function showSSASolution(solutionNum) {
+    if (!ssaSolutions || ssaSolutions.length < solutionNum) return;
+
+    const sol = ssaSolutions[solutionNum - 1];
+
+    // Update button states
+    document.querySelectorAll('#ssa-solution-selector .solution-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === solutionNum - 1);
+    });
+
+    // Draw SVG
+    drawTriangleAngles('triangle-angles-svg', sol.a, sol.b, sol.c, sol.angleA, sol.angleB, sol.angleC);
+
+    // Show results
+    const resultArea = document.getElementById('triangle-angles-result');
+    const valuesDiv = document.getElementById('triangle-angles-values');
+
+    const solutionLabel = ssaSolutions.length > 1 ? ` (해 ${solutionNum}/${ssaSolutions.length})` : '';
+
+    valuesDiv.innerHTML = `
+        <div class="result-item">
+            <span class="result-label">변 a (입력)</span>
+            <span class="result-value">${sol.a.toFixed(3)} mm</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">변 b (입력)</span>
+            <span class="result-value">${sol.b.toFixed(3)} mm</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">변 c (계산됨)${solutionLabel}</span>
+            <span class="result-value result-highlight">${sol.c.toFixed(3)} mm</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">∠A (입력)</span>
+            <span class="result-value">${sol.angleA.toFixed(3)}°</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">∠B (계산됨)${solutionLabel}</span>
+            <span class="result-value result-highlight">${sol.angleB.toFixed(3)}°</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">∠C (계산됨)${solutionLabel}</span>
+            <span class="result-value result-highlight">${sol.angleC.toFixed(3)}°</span>
+        </div>
+    `;
+
+    resultArea.classList.add('show');
+}
+
+// Calculate from one side and two angles (ASA)
+function calculateFromOneAndTwoAngles() {
+    const c = parseFloat(document.getElementById('tri-asa-c').value);
+    const angleA = parseFloat(document.getElementById('tri-asa-angleA').value);
+    const angleB = parseFloat(document.getElementById('tri-asa-angleB').value);
+
+    if (isNaN(c) || isNaN(angleA) || isNaN(angleB) || c <= 0 || angleA <= 0 || angleB <= 0) {
+        alert('올바른 값을 입력해주세요.');
+        return;
+    }
+
+    // Check if valid angles (sum must be less than 180)
+    if (angleA + angleB >= 180) {
+        alert('두 각도의 합이 180° 미만이어야 합니다.');
+        return;
+    }
+
+    // Calculate third angle
+    const angleC = 180 - angleA - angleB;
+
+    // Use Law of Sines: a/sin(A) = b/sin(B) = c/sin(C)
+    const angleARad = angleA * Math.PI / 180;
+    const angleBRad = angleB * Math.PI / 180;
+    const angleCRad = angleC * Math.PI / 180;
+
+    const a = c * Math.sin(angleARad) / Math.sin(angleCRad);
+    const b = c * Math.sin(angleBRad) / Math.sin(angleCRad);
+
+    // Draw SVG
+    drawTriangleAngles('triangle-angles-svg', a, b, c, angleA, angleB, angleC);
+
+    // Show results
+    const resultArea = document.getElementById('triangle-angles-result');
+    const valuesDiv = document.getElementById('triangle-angles-values');
+
+    valuesDiv.innerHTML = `
+        <div class="result-item">
+            <span class="result-label">변 a (계산됨)</span>
+            <span class="result-value result-highlight">${a.toFixed(3)} mm</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">변 b (계산됨)</span>
+            <span class="result-value result-highlight">${b.toFixed(3)} mm</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">변 c (입력)</span>
+            <span class="result-value">${c.toFixed(3)} mm</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">∠A (입력)</span>
+            <span class="result-value">${angleA.toFixed(3)}°</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">∠B (입력)</span>
+            <span class="result-value">${angleB.toFixed(3)}°</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">∠C (계산됨)</span>
+            <span class="result-value result-highlight">${angleC.toFixed(3)}°</span>
+        </div>
+    `;
+
+    resultArea.classList.add('show');
+}
+
 // Draw Triangle for Angles Calculation (improved text positioning)
 function drawTriangleAngles(svgId, a, b, c, angleA, angleB, angleC) {
     const svg = document.getElementById(svgId);
@@ -384,17 +569,20 @@ function drawTriangleAngles(svgId, a, b, c, angleA, angleB, angleC) {
         <text x="${x2 + 12}" y="${y2 - 8}" font-size="14" font-weight="bold" fill="#1a5f7a" text-anchor="middle">B</text>
         <text x="${x3}" y="${y3 - 12}" font-size="14" font-weight="bold" fill="#1a5f7a" text-anchor="middle">C</text>
 
-        <!-- Side Labels inside triangle area -->
-        <rect x="${(x1 + x2) / 2 - 30}" y="${(y1 + y2) / 2 - 25}" width="60" height="18" fill="rgba(255,255,255,0.95)" rx="3"/>
-        <text x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2 - 12}" fill="#1a5f7a" font-size="12" font-weight="bold" text-anchor="middle">
+        <!-- Side Labels -->
+        <!-- 변 c: 삼각형 아래에 표시 -->
+        <rect x="${(x1 + x2) / 2 - 30}" y="${y1 + 8}" width="60" height="18" fill="rgba(255,255,255,0.95)" rx="3"/>
+        <text x="${(x1 + x2) / 2}" y="${y1 + 21}" fill="#1a5f7a" font-size="12" font-weight="bold" text-anchor="middle">
             c = ${c.toFixed(1)}
         </text>
 
+        <!-- 변 a: 오른쪽 변 -->
         <rect x="${(x2 + x3) / 2 + 5}" y="${(y2 + y3) / 2 - 9}" width="60" height="18" fill="rgba(255,255,255,0.95)" rx="3"/>
         <text x="${(x2 + x3) / 2 + 10}" y="${(y2 + y3) / 2 + 5}" fill="#1a5f7a" font-size="12" font-weight="bold" text-anchor="start">
             a = ${a.toFixed(1)}
         </text>
 
+        <!-- 변 b: 왼쪽 변 -->
         <rect x="${(x1 + x3) / 2 - 65}" y="${(y1 + y3) / 2 - 9}" width="60" height="18" fill="rgba(255,255,255,0.95)" rx="3"/>
         <text x="${(x1 + x3) / 2 - 10}" y="${(y1 + y3) / 2 + 5}" fill="#1a5f7a" font-size="12" font-weight="bold" text-anchor="end">
             b = ${b.toFixed(1)}
@@ -684,8 +872,8 @@ function drawHexagon(svgId, side, shortDiag, longDiag, hexHeight) {
 
         <!-- 꼭지점 번호 -->
         ${points.map((p, i) => {
-            const offsetX = (p.x - centerX) * 0.35;
-            const offsetY = (p.y - centerY) * 0.4;
+            const offsetX = (p.x - centerX) * 0.18;
+            const offsetY = (p.y - centerY) * 0.22;
             return `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#1a5f7a"/>
                     <text x="${p.x + offsetX}" y="${p.y + offsetY}" fill="#1a5f7a" text-anchor="middle" dominant-baseline="middle" font-weight="bold" font-size="11">${i + 1}</text>`;
         }).join('')}
